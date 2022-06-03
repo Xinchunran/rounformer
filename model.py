@@ -123,6 +123,35 @@ class Attention(nn.Module):
         x = self.out(x)
         return x
 
+
+class Encoder_Block():
+	def __init__(self, dim, heads, mlp_ratio=4, drop_rate=0.1):
+		super().__init__()
+		self.ln1 = nn.LayerNorm(dim)
+		self.attn = Attention(dim, heads, drop_rate, drop_rate)
+		self.ln1 = nn.LayerNorm(dim)
+		self.mlp = MLP(dim, dim*mlp_ratio, drop=drop_rate)
+
+	def forward(self, x):
+		x1 = self.ln1(x)
+		x = x + self.attn(x1)
+		x2 = self.ln2(x)
+		x = x + self.mlp(x2)
+		return x
+
+class TransformerEncoder(nn.Module):
+	def __init__(self, depth, dim, heads, mlp_ratio=4, drop_rate=0.):
+		super().__init__()
+		self.Encoder_Blocks = nn.ModuleList([
+		Encoder_Block(dim, heads, mlp_ratio, drop_rate)
+		for i in range(depth)])
+
+	def forward(self, x):
+		for Encoder_Block in self.Encoder_Blocks:
+			x = Encoder_Block(x)
+		return x
+
+
 class Generator_(nn.Module):
     """
     Implementation of a simple GAN sicriminator.
