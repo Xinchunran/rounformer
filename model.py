@@ -231,10 +231,11 @@ class Discriminator_(nn.Module):
 
 
 
-class ResNet(nn.Module):
-    def __init__(self, module):
+class Residual(nn.Module):
+    def __init__(self, input_channels, num_channels, use_1x1conv=False, strides=1):
         super().__init__()
-        self.module = module
+        self.conv1 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1, stride = strides)
+        self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size =1, stride = strides)
 
     def forward(self, inputs):
         return self.module(inputs) + inputs
