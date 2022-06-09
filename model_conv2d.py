@@ -159,11 +159,24 @@ class Discriminator(nn.Module):
             self.tag = 1
         else:
             self.tag = 0
-            inp = int(int_shape)
+            inp = int(inp_shape)
 
-        self.model = nn.Sequential(nn.Conv1d(in_channels=inp_shape,
-                                             out_channels=256, kernel_size=4,
-                                             stride =2, padding=1), ) 
+        self.model = nn.Sequential(
+            nn.Conv1d(in_channels=inp_shape, out_channels=256, kernel_size=4, stride =2, padding=1), nn.InstanceNorm1d(256, affine=True), nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv1d(in_channels=256, out_channels=512, kernel_size=4, stride=2, padding=1), nn.InstanceNorm1d(512, affine=True), nn.LeakyReLU(0.2,inplace=True),
+            nn.Conv1d(in_channels=512, out_channels=1024, kernel_size=4,
+                      stride=2, padding=1),
+            nn.InstanceNorm1d(1024,affine=True), nn.LeakyReLU(0.2,
+                                                               inplace=True)) 
+
+        self.output = nn.Sequential(nn.Conv1d(in_channels=1024, out_channels=1, kernel_size=4, stride=1, padding=0))
+
+    def forward(self, X):
+        if self.tag:
+            X = X.view(X.size(0), -1)
+        validity = self.model(X)
+
+        return validity
 
 class Generator_(nn.Module):
     """
