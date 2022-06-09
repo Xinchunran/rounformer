@@ -127,7 +127,7 @@ class Generator(nn.Module):
     def __init__(self, latent_dim, out_shape, n_units=1024):
         super(Generator, self).__init__()
         self.out_shape = out_shape
-        if (type(out_shape)) is tuple and len(out_shape) > 1):
+        if (type(out_shape) is tuple and len(out_shape) > 1):
             out = int(np.prod(out_shape))
             self.tag = 1
         else:
@@ -135,13 +135,13 @@ class Generator(nn.Module):
             out = int(out_shape)
 
         self.model = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=latent_dim, out_channels=n_units, kernel_size=4, stride=1, padding=0),
-            nn.BatchNorm2d(num_features=n_units), nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=1024, out_channels=512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(num_features=512), nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=512, out_channels=256, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(num_features=256), nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=256, out_channels=out, kernel_size=4, stride=2, padding=1))
+            nn.ConvTranspose1d(in_channels=latent_dim, out_channels=n_units, kernel_size=4, stride=1, padding=0),
+            nn.BatchNorm1d(num_features=n_units), nn.ReLU(True),
+            nn.ConvTranspose1d(in_channels=1024, out_channels=512, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm1d(num_features=512), nn.ReLU(True),
+            nn.ConvTranspose1d(in_channels=512, out_channels=256, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm1d(num_features=256), nn.ReLU(True),
+            nn.ConvTranspose1d(in_channels=256, out_channels=out, kernel_size=4, stride=2, padding=1))
 
         self.output = nn.Tanh()
 
@@ -149,6 +149,21 @@ class Generator(nn.Module):
         X = self.model(X)
         return self.output(X)
 
+
+class Discriminator(nn.Module):
+    def __init__(self, inp_shape, n_units=1024):
+        super(Discriminator, self).__init__()
+
+        if (type(inp_shape) is tuple and len(inp_shape) > 1):
+            inp = int(np.prod(inp_shape))
+            self.tag = 1
+        else:
+            self.tag = 0
+            inp = int(int_shape)
+
+        self.model = nn.Sequential(nn.Conv1d(in_channels=inp_shape,
+                                             out_channels=256, kernel_size=4,
+                                             stride =2, padding=1), ) 
 
 class Generator_(nn.Module):
     """
