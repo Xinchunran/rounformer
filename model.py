@@ -174,6 +174,61 @@ class TransformerEncoder(nn.Module):
 
 class Generator(nn.Module):
     """ implement the GAN wiht the previous transformer block"""
+    def __init__(self, depth1=5, depth2=4, depth3=2, initial_size=8, dim=384,
+                 heads=4, mlp_ratio=4, drop_rate=0.):#,device=device):
+        super(Generator, self).__init__()
+
+        self.initial_size = initial_size
+        self.dim = dim
+        self.depth1 = depth1
+        self.depth2 = depth2
+        self.depth3 = depth3
+        self.heads = heads
+        self.mlp_ratio = mlp_ration
+        self.droprate_rate = drop_rate
+
+        self.mlp = nn.Linear(1024, (self.initial_size ** 2)* self.dim)
+
+        self.positional_embedding_1 = nn.Parameter(torch.zeros(1, (8**2), 384))
+        self.positional_embedding_2 = nn.Parameter(torch.zeros(1, (8*2)**2,
+                                                               384//4))
+        self.positional_embedding_3 = nn.Parameter(torch.zeros(1, (8*4)**2,
+                                                               384//16))
+
+        self.TransformerEncoder_encoder1 =
+        TransformerEncoder(depth=self.depth1, dim=self.dim,heads=self.heads,
+                           mlp_ratio=self.mlp_ratio,
+                           drop_rate=self.droprate_rate)
+        self.TransformerEncoder_encoder2 =
+        TransformerEncoder(depth=self.depth2, dim=self.dim//4,
+                           heads=self.heads, mlp_ratio=self.mlp_ratio,
+                           drop_rate=self.droprate_rate)
+        self.TransformerEncoder_encoder3 =
+        TransformerEncoder(depth=self.depth3, dim=self.dim//16,
+                           heads=self.heads, mlp_ratio=self.mlp_ratio,
+                           drop_rate=self.droprate_rate)
+
+
+        self.linear = nn.Sequential(nn.Conv2d(self.dim//16, 3, 1, 1, 0))
+
+    def forward(self, noise):
+
+        x = self.mlp(noise).view(-1, self.initial_size ** 2, self.dim)
+        x = x + self.positional_embedding_1
+        H, W = self.initial_size, self.initial_size
+        x = self.TransformerEncoder_encoder1(x)
+
+        x,H,W = UpSampling(x,H,W) 
+        x = x + self.positional_embedding_2
+        x = self.TransformerEncoder_encoder2(x)
+
+        x,H,W = UpSampling(x, H, W)
+        x = x + self.positional_embedding_3
+
+        x = self.TransformerEncoder_encoder3(x)
+        x = self.linear(x.permute(0, 2, 1).view(-1, self.dim//16, H, W))
+
+        return x
 
 
 class Generator_(nn.Module):
