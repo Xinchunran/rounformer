@@ -231,6 +231,17 @@ class Generator(nn.Module):
         return x
 
 
+class Discriminator(nn.Module):
+    """
+    Implementation of a TransGAN discriminator
+
+    """
+    def __init__(self, diff_aug, image_size=32, patch_size=4, input_channel=3,
+                num_classes=1, dim=384, depth=7, heads=4, mlp_ratio=4,
+                 drop_rate=0)
+
+
+
 class Generator_(nn.Module):
     """
     Implementation of a simple GAN Generator with linear layers.
