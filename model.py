@@ -124,6 +124,27 @@ class Attention(nn.Module):
         return x
 
 
+class ImgPatches(nn.Module):
+    def __init__(self, input_channels=3, dim=768, patch_size=4):
+        super().__init__()
+        self.patch_embed = nn.Conv2d(input_channel, dim, kernel_size=patch_size, stride=patch_size)
+        
+        def forward(self, img):
+            patches = self.patch_embed(img).flatten(2).transpose(1,2)
+            return patches
+
+def UpSampling(x, H, W):
+    B, N, C = x.size()
+    assert N == H*W
+    x = x.permute(0, 2, 1)
+    x = x.view(-1, C, H, W)
+    x = nn.PixelShuffle(2)(x)
+    B, C, H, W = x.size()
+    x = x.view(-1, C, H*W)
+    x = x.permute(0,2,1)
+    return x, H, W
+
+
 class Encoder_Block():
 	def __init__(self, dim, heads, mlp_ratio=4, drop_rate=0.1):
 		super().__init__()
@@ -151,10 +172,13 @@ class TransformerEncoder(nn.Module):
 			x = Encoder_Block(x)
 		return x
 
+class Generator(nn.Module):
+    """ implement the GAN wiht the previous transformer block"""
+
 
 class Generator_(nn.Module):
     """
-    Implementation of a simple GAN sicriminator.
+    Implementation of a simple GAN Generator with linear layers.
     
     """   
     def __init__(self, latent_dim, out_shape, n_layers=4, n_units=512):
@@ -197,7 +221,7 @@ class Generator_(nn.Module):
 
 class Discriminator_(nn.Module):
     """
-    Implementation of a simple GAN sicriminator.
+    Implementation of a simple GAN Discriminator.
     
     """
     def __init__(self, inp_shape, n_layers=4, n_units=512):
@@ -232,6 +256,7 @@ class Discriminator_(nn.Module):
 
 
 class Residual(nn.Module):
+    """the Residual blocks try to implement in the conv residual in the future"""
     def __init__(self, input_channels, num_channels, use_1x1conv=False, strides=1):
         super().__init__()
         self.conv1 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1, stride = strides)
