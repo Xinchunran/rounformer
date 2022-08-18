@@ -48,6 +48,25 @@ class Discriminator16(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             nn.Dropout(0.1),
             nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(512),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Dropout(0.1),
+            nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=0, bias=False),
+            nn.Sigmoid(),
+        )
+
+    def forward(self, input):
+        return self.main(input)
+
+
+#more deeper layer of generator with 2D network
+
+
+class Generator64(nn.Module):
+    def __init__(self, ngpu):
+        super(Generator64, self).__init__()
+        self.ngpu = ngpu
+
 
 
 
