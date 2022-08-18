@@ -43,5 +43,11 @@ class Discriminator16(nn.Module):
             nn.BatchNorm2d(128),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Dropout(0.1),
+            nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Dropout(0.1),
+            nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1, bias=False),
+
 
 
